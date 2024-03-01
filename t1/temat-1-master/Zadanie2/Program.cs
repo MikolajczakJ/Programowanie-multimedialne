@@ -19,7 +19,7 @@ namespace PMLabs
 
     class Program
     {
-        static Torus torus = new Torus();
+        static Teapot torus = new Teapot();
         public static float radians = 0;
         public static void InitOpenGLProgram(Window window)
         {
@@ -30,7 +30,7 @@ namespace PMLabs
             DemoShaders.InitShaders("Shaders\\");
         }
 
-        public static void DrawScene(Window window)
+        public static void DrawScene(Window window, float time)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -43,12 +43,8 @@ namespace PMLabs
             DemoShaders.spConstant.Use();
             GL.UniformMatrix4(DemoShaders.spConstant.U("P"), 1, false, P.Values1D);
             GL.UniformMatrix4(DemoShaders.spConstant.U("V"), 1, false, V.Values1D);
-            if (radians==360)
-            {
-                radians = 0;
-            }
             mat4 M = mat4.Identity;
-            M *= mat4.Rotate(glm.Radians(radians++), new vec3(-2.0f, 3.0f, 1.0f));
+            M *= mat4.Rotate(glm.Radians(9000000.0f*time), new vec3(0.50f, 0.1f, 1.0f));
             //M *= mat4.Scale(new vec3(3.0f, 1.0f, 1.0f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, M.Values1D);
 
@@ -79,7 +75,7 @@ namespace PMLabs
 
             while (!Glfw.WindowShouldClose(window))
             {
-                DrawScene(window);
+                DrawScene(window, (float)Glfw.Time);
                 Glfw.PollEvents();
             }
 

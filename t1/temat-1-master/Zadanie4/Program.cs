@@ -19,6 +19,9 @@ namespace PMLabs
 
     class Program
     {
+        public static Sphere sun = new Sphere(0.5f,12,12);
+        public static Sphere planet = new Sphere(0.2f,12,12);
+        public static Sphere moon = new Sphere(0.1f,12,12);
         public static void InitOpenGLProgram(Window window)
         {
             // Czyszczenie okna na kolor czarny
@@ -28,7 +31,7 @@ namespace PMLabs
             DemoShaders.InitShaders("Shaders\\");
         }
 
-        public static void DrawScene(Window window)
+        public static void DrawScene(Window window,float time)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -42,11 +45,29 @@ namespace PMLabs
             GL.UniformMatrix4(DemoShaders.spConstant.U("P"), 1, false, P.Values1D);
             GL.UniformMatrix4(DemoShaders.spConstant.U("V"), 1, false, V.Values1D);
 
-            mat4 M = mat4.Identity;
-            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, M.Values1D);
+            mat4 sunM = mat4.Identity;
+
+
+
+            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, sunM.Values1D);
+            sunM *= mat4.Rotate(glm.Radians(100.0f * time), new vec3(0.0f, 0.0f, 1.0f));
 
             // TU RYSUJEMY
+            sun.drawWire();
+            
+            mat4 planetM = sunM;
+            planetM *= mat4.Translate(new vec3(0, 1.5f, 0));
+            planetM *= mat4.Rotate(glm.Radians(200.0f * time), new vec3(0.0f, 0.0f, 1.0f));
 
+            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, planetM.Values1D);
+            planet.drawWire();
+
+
+
+            mat4 moonM = planetM;
+            moonM *= mat4.Translate(new vec3(0, 0.5f, 0));
+            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, moonM.Values1D);
+            moon.drawWire();
             Glfw.SwapBuffers(window);
         }
 
@@ -72,7 +93,7 @@ namespace PMLabs
 
             while (!Glfw.WindowShouldClose(window))
             {
-                DrawScene(window);
+                DrawScene(window, (float)Glfw.Time);
                 Glfw.PollEvents();
             }
 
