@@ -47,41 +47,41 @@ namespace PMLabs
             GL.UniformMatrix4(DemoShaders.spConstant.U("P"), 1, false, P.Values1D);
             GL.UniformMatrix4(DemoShaders.spConstant.U("V"), 1, false, V.Values1D);
 
+            // SŁOŃCE
             mat4 sunM = mat4.Identity;
-
-
-
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, sunM.Values1D);
             sunM *= mat4.Rotate(glm.Radians(100.0f * time), new vec3(0.0f, 0.0f, 1.0f));
-
-            // TU RYSUJEMY
             sun.drawWire();
 
+            
+            // PLANETA 1
             mat4 planetM = sunM;
             planetM *= mat4.Translate(new vec3(0, 1.5f, 0));
             planetM *= mat4.Rotate(glm.Radians(200.0f * time), new vec3(0.0f, 0.0f, 1.0f));
-
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, planetM.Values1D);
             planet.drawWire();
 
 
-
+            //KSIĘŻYC 1
             mat4 moonM = planetM;
             moonM *= mat4.Translate(new vec3(0, 0.5f, 0));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, moonM.Values1D);
             moon.drawWire();
 
+            //PLANETA 2
             mat4 planet2M = sunM;
             planet2M *= mat4.Translate(new vec3(0, 2, 0));
             planet2M *= mat4.Rotate(glm.Radians(200.0f * time), new vec3(0.0f, 0.0f, 1.0f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, planet2M.Values1D);
             planet2.drawWire();
 
+
+            //KSIĘŻYC 2
+
             mat4 moon2M = planet2M;
             moon2M *= mat4.Translate(new vec3(0, 0, 0.3f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, moon2M.Values1D);
             moon2.drawWire();
-
 
 
             Glfw.SwapBuffers(window);
