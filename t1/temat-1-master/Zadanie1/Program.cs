@@ -23,7 +23,7 @@ namespace PMLabs
         public static void InitOpenGLProgram(Window window)
         {
             // Czyszczenie okna na kolor czarny
-            GL.ClearColor(, 0, 0, 1);
+            GL.ClearColor(0, 0, 0, 1);
 
             // Ładowanie programów cieniujących
             DemoShaders.InitShaders("Shaders\\");

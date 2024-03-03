@@ -19,6 +19,72 @@ namespace PMLabs
 
     class Program
     {
+        static Torus[] toruses = new Torus[] {
+        new Torus(), new Torus(), new Torus(),
+        new Torus(), new Torus(), new Torus()
+        };
+        static Cube[] cubes = new Cube[] {
+            new Cube(), new Cube(), new Cube(),
+            new Cube(), new Cube(), new Cube(),
+            new Cube(), new Cube(), new Cube()
+        };
+
+        //Można tak?
+        static Cube[][] cubeMatrix = new Cube[][]
+        {
+        cubes,cubes,cubes,cubes,cubes,cubes
+        };
+
+        //static Cube[][] cubeMatrix = new Cube[][]
+        //{
+        //    new Cube[]
+        //    {
+        //        new Cube(), new Cube(), new Cube(),
+        //        new Cube(), new Cube(), new Cube(),
+        //        new Cube(), new Cube(), new Cube()
+        //    },
+        //    new Cube[]
+        //    {
+        //        new Cube(), new Cube(), new Cube(),
+        //        new Cube(), new Cube(), new Cube(),
+        //        new Cube(), new Cube(), new Cube()
+        //    },
+        //    new Cube[]
+        //    {
+        //        new Cube(), new Cube(), new Cube(),
+        //        new Cube(), new Cube(), new Cube(),
+        //        new Cube(), new Cube(), new Cube()
+        //    },
+        //                new Cube[]
+        //    {
+        //        new Cube(), new Cube(), new Cube(),
+        //        new Cube(), new Cube(), new Cube(),
+        //        new Cube(), new Cube(), new Cube()
+        //    },
+        //    new Cube[]
+        //    {
+        //        new Cube(), new Cube(), new Cube(),
+        //        new Cube(), new Cube(), new Cube(),
+        //        new Cube(), new Cube(), new Cube()
+        //    },
+        //    new Cube[]
+        //    {
+        //        new Cube(), new Cube(), new Cube(),
+        //        new Cube(), new Cube(), new Cube(),
+        //        new Cube(), new Cube(), new Cube()
+        //    }
+
+        //};
+        static vec3[] TorusPositions = new vec3[]
+        {
+
+            new vec3(1.0f, 0.0f, 0.0f), //Lewy środkowy
+            new vec3(0.52f, 0.95f, 0.0f), //Lewy górny
+            new vec3(-0.52f, 0.95f, 0.0f), //Prawy górny
+            new vec3(-1.0f, 0.0f, 0.0f), //Prawy środkowy
+            new vec3(-0.52f, -0.95f, 0.0f), //Prawy dolny
+            new vec3(0.52f, -0.95f, 0.0f), //Lewy dolny
+        };
         public static void InitOpenGLProgram(Window window)
         {
             // Czyszczenie okna na kolor czarny
@@ -28,10 +94,9 @@ namespace PMLabs
             DemoShaders.InitShaders("Shaders\\");
         }
 
-        public static void DrawScene(Window window)
+        public static void DrawScene(Window window, float time)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
             mat4 V = mat4.LookAt(
                 new vec3(0.0f, 0.0f, -5.0f),
                 new vec3(0.0f, 0.0f, 0.0f),
@@ -46,6 +111,38 @@ namespace PMLabs
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, M.Values1D);
 
             // TU RYSUJEMY
+            bool torusSpin = false;
+            bool fixCogWheel = false;
+            for (int i = 0; i < toruses.Length; i++)
+            {
+                mat4 torusM = mat4.Identity;
+                torusM *= mat4.Translate(TorusPositions[i]);
+                torusM *= mat4.Scale(0.5f);
+
+                torusM *= torusSpin ?
+                    mat4.Rotate(glm.Radians(30.0f * time), new vec3(0.0f, 0.0f, 1.0f)) :
+                    mat4.Rotate(glm.Radians(30.0f * time), new vec3(0.0f, 0.0f, -1.0f));
+                torusSpin = !torusSpin;
+                GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, torusM.Values1D);
+
+                torusM *= mat4.Rotate(30f, new vec3(0.0f, 1.0f, 1.0f));
+                GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, torusM.Values1D);
+                toruses[i].drawWire();
+                for (int j = 0; j < cubeMatrix[i].Length; j++)
+                {
+                    mat4 cubeM = torusM;
+                    cubeM *= fixCogWheel ?
+                        mat4.Rotate((30 * j), new vec3(0.0f, 0.0f, 1.0f)) :
+                        mat4.Rotate((30 * j) + 10, new vec3(0.0f, 0.0f, 1.0f));
+
+                    cubeM *= mat4.Translate(new vec3(1.0f, 0.0f, 0.0f));
+                    cubeM *= mat4.Scale(0.13f);
+                    GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, cubeM.Values1D);
+                    cubeMatrix[i][j].drawWire();
+                }
+                fixCogWheel = !fixCogWheel;
+
+            }
 
             Glfw.SwapBuffers(window);
         }
@@ -59,7 +156,7 @@ namespace PMLabs
         {
             Glfw.Init();
 
-            Window window = Glfw.CreateWindow(500, 500, "Programowanie multimedialne", GLFW.Monitor.None, Window.None);
+            Window window = Glfw.CreateWindow(1500, 1500, "Programowanie multimedialne", GLFW.Monitor.None, Window.None);
 
             Glfw.MakeContextCurrent(window);
             Glfw.SwapInterval(1);
@@ -72,7 +169,7 @@ namespace PMLabs
 
             while (!Glfw.WindowShouldClose(window))
             {
-                DrawScene(window);
+                DrawScene(window, (float)Glfw.Time);
                 Glfw.PollEvents();
             }
 

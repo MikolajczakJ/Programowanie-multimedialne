@@ -52,7 +52,7 @@ namespace PMLabs
             // TU RYSUJEMY
             mat4 torusM1 = mat4.Identity;
             torusM1 *= mat4.Translate(new vec3(-1.0f, 0.0f, 0.0f));
-            torusM1 *= mat4.Rotate(glm.Radians(100.0f * time), new vec3(0.0f, 0.0f, 1.0f));
+            torusM1 *= mat4.Rotate(glm.Radians(880.0f * time), new vec3(0.0f, 0.0f, 1.0f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, torusM1.Values1D);
             t1.drawWire();
 
@@ -60,7 +60,7 @@ namespace PMLabs
 
             mat4 torusM2 = mat4.Identity;
             torusM2 *= mat4.Translate(new vec3(1.0f, 0.0f, 0.0f));
-            torusM2 *= mat4.Rotate(glm.Radians(100.0f * time), new vec3(0.0f, 0.0f, -1.0f));
+            torusM2 *= mat4.Rotate(glm.Radians(880.0f * time), new vec3(0.0f, 0.0f, -1.0f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, torusM2.Values1D);
             t2.drawWire();
 
