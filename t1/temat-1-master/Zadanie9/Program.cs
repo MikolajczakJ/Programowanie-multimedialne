@@ -123,9 +123,7 @@ namespace PMLabs
                     mat4.Rotate(glm.Radians(30.0f * time), new vec3(0.0f, 0.0f, 1.0f)) :
                     mat4.Rotate(glm.Radians(30.0f * time), new vec3(0.0f, 0.0f, -1.0f));
                 torusSpin = !torusSpin;
-                GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, torusM.Values1D);
 
-                torusM *= mat4.Rotate(30f, new vec3(0.0f, 1.0f, 1.0f));
                 GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, torusM.Values1D);
                 toruses[i].drawWire();
                 for (int j = 0; j < cubeMatrix[i].Length; j++)
