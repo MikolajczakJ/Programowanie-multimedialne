@@ -13,6 +13,7 @@ namespace PMLabs
 
 
     //Implementacja interfejsu dostosowującego metodę biblioteki Glfw służącą do pozyskiwania adresów funkcji i procedur OpenGL do współpracy z OpenTK.
+    //Implementacja interfejsu dostosowującego metodę biblioteki Glfw służącą do pozyskiwania adresów funkcji i procedur OpenGL do współpracy z OpenTK.
     public class BC : IBindingsContext
     {
         public IntPtr GetProcAddress(string procName)
@@ -53,6 +54,7 @@ namespace PMLabs
         public static void InitOpenGLProgram(Window window)
         {
             GL.ClearColor(0, 0, 0, 1);
+            GL.Enable(EnableCap.DepthTest);
             DemoShaders.InitShaders("Shaders/");
             Glfw.SetKeyCallback(window, kc); //Zarejestruj metodę obsługi klawiatury
         }
@@ -70,11 +72,12 @@ namespace PMLabs
             mat4 V = mat4.LookAt(new vec3(0, 0, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
 
             DemoShaders.spLambert.Use();
-            GL.UniformMatrix4(DemoShaders.spConstant.U("P"), 1, false, P.Values1D);
-            GL.UniformMatrix4(DemoShaders.spConstant.U("V"), 1, false, V.Values1D);
+            GL.UniformMatrix4(DemoShaders.spLambert.U("P"), 1, false, P.Values1D);
+            GL.UniformMatrix4(DemoShaders.spLambert.U("V"), 1, false, V.Values1D);
 
             mat4 M = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
-            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, M.Values1D);
+            GL.UniformMatrix4(DemoShaders.spLambert.U("M"), 1, false, M.Values1D);
+            GL.Uniform4(DemoShaders.spLambert.U("color"), 1f, 0f, 1f, 1f);
 
             torus.drawSolid();
 

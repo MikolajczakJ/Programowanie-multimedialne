@@ -28,6 +28,7 @@ namespace PMLabs
         static float speed_x; //Prędkość obrotu wokół osi X [rad/s]
 
         static Torus torus = new Torus();
+        static MyCube cube = new MyCube();
 
         static KeyCallback kc = KeyProcessor;
 
@@ -53,6 +54,7 @@ namespace PMLabs
         public static void InitOpenGLProgram(Window window)
         {
             GL.ClearColor(0, 0, 0, 1);
+            GL.Enable(EnableCap.DepthTest);
             DemoShaders.InitShaders("Shaders/");
             Glfw.SetKeyCallback(window, kc); //Zarejestruj metodę obsługi klawiatury
         }
@@ -69,14 +71,28 @@ namespace PMLabs
             mat4 P = mat4.Perspective(glm.Radians(50.0f), 1, 1, 50);
             mat4 V = mat4.LookAt(new vec3(0, 0, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
 
-            DemoShaders.spLambert.Use();
-            GL.UniformMatrix4(DemoShaders.spConstant.U("P"), 1, false, P.Values1D);
-            GL.UniformMatrix4(DemoShaders.spConstant.U("V"), 1, false, V.Values1D);
+            DemoShaders.spColored.Use();
+
+            GL.UniformMatrix4(DemoShaders.spColored.U("P"), 1, false, P.Values1D);
+            GL.UniformMatrix4(DemoShaders.spColored.U("V"), 1, false, V.Values1D);
 
             mat4 M = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
-            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, M.Values1D);
+            GL.UniformMatrix4(DemoShaders.spColored.U("M"), 1, false, M.Values1D);
 
-            torus.drawSolid();
+
+
+            GL.EnableVertexAttribArray(DemoShaders.spColored.A("vertex"));
+            GL.EnableVertexAttribArray(DemoShaders.spColored.A("color"));
+            GL.VertexAttribPointer(DemoShaders.spColored.A("vertex"), 4, VertexAttribPointerType.Float, false, 0, MyCube.vertices);
+            GL.VertexAttribPointer(DemoShaders.spColored.A("color"), 4, VertexAttribPointerType.Float, false, 0, MyCube.colors);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, MyCube.vertexCount);
+            GL.DisableVertexAttribArray(DemoShaders.spColored.A("vertex"));
+            GL.DisableVertexAttribArray(DemoShaders.spColored.A("color"));
+
+
+
+
+            //torus.drawSolid();
 
             Glfw.SwapBuffers(window);
         }
