@@ -31,6 +31,8 @@ namespace PMLabs
         
         static float speed_y; //Prędkość obrotu wokół osi Y [rad/s]
         static float speed_x; //Prędkość obrotu wokół osi X [rad/s]
+        static float move_x; 
+        static float move_y; 
 
         static Sphere bubble = new Sphere(0.08f,12,12);
         static KeyCallback kc = KeyProcessor;
@@ -43,6 +45,11 @@ namespace PMLabs
                 if (key == Keys.Right) speed_y =  3.14f;
                 if (key == Keys.Up) speed_x = -3.14f;
                 if (key == Keys.Down) speed_x = 3.14f;
+
+                if (key == Keys.A) move_x = -3.14f;
+                if (key == Keys.D) move_x = 3.14f;
+                if (key == Keys.S) move_y = -3.14f;
+                if (key == Keys.W) move_y = 3.14f;
             }
             if (state == InputState.Release)
             {
@@ -50,6 +57,11 @@ namespace PMLabs
                 if (key == Keys.Right) speed_y = 0;
                 if (key == Keys.Up) speed_x = 0;
                 if (key == Keys.Down) speed_x = 0;
+
+                if (key == Keys.A) move_x = 0;
+                if (key == Keys.D) move_x = 0;
+                if (key == Keys.S) move_y = 0;
+                if (key == Keys.W) move_y = 0;
             }
         }
 
@@ -71,7 +83,7 @@ namespace PMLabs
         }
 
         //Metoda wykonywana najczęściej jak się da. Umieszczamy tutaj kod rysujący
-        public static void DrawScene(Window window,float angle_x,float angle_y, float time)
+        public static void DrawScene(Window window,float angle_x,float angle_y, float time, float loc_x, float loc_y)
         {
             // Wyczyść zawartość okna (buforów kolorów i głębokości)
             GL.Clear(ClearBufferMask.ColorBufferBit| ClearBufferMask.DepthBufferBit);
@@ -85,7 +97,8 @@ namespace PMLabs
 
 
             // BLAT stołu
-            mat4 M = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x,new vec3 (1,0,0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
+            mat4 M = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x,new vec3 (1,0,0));
+            M *=mat4.Translate(move_x, 0, move_y);
             M *= mat4.Translate(new vec3(0.0f, -0.5f, 0.0f));
             M *= mat4.Scale(new vec3(1.5f, 0.15f, 1.5f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, M.Values1D);
@@ -102,6 +115,7 @@ namespace PMLabs
 
             //Noga 1
             mat4 legM1 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
+            legM1 *= mat4.Translate(move_x, 0, move_y);
             legM1 *= mat4.Translate(new vec3(1.25f, -1.75f, 1.25f));
             legM1 *= mat4.Scale(new vec3(0.15f, 1.25f, 0.15f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, legM1.Values1D);
@@ -117,6 +131,7 @@ namespace PMLabs
             
             //Noga 2
             mat4 legM2 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
+            legM2 *= mat4.Translate(move_x, 0, move_y);
             legM2 *= mat4.Translate(new vec3(1.25f, -1.75f, -1.25f));
             legM2 *= mat4.Scale(new vec3(0.15f, 1.25f, 0.15f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, legM2.Values1D);
@@ -134,6 +149,7 @@ namespace PMLabs
             //noga 3
 
             mat4 legM3 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
+            legM3 *= mat4.Translate(move_x, 0, move_y);
             legM3 *= mat4.Translate(new vec3(-1.25f, -1.75f, -1.25f));
             legM3 *= mat4.Scale(new vec3(0.15f, 1.25f, 0.15f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, legM3.Values1D);
@@ -151,6 +167,7 @@ namespace PMLabs
             //noga 4
 
             mat4 legM4 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
+            legM4 *= mat4.Translate(move_x, 0, move_y);
             legM4 *= mat4.Translate(new vec3(-1.25f, -1.75f, 1.25f));
             legM4 *= mat4.Scale(new vec3(0.15f, 1.25f, 0.15f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, legM4.Values1D);
@@ -166,6 +183,7 @@ namespace PMLabs
 
             // Czajnik
             mat4 teapotM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
+            teapotM *= mat4.Translate(move_x, 0, move_y);
             teapotM *= mat4.Translate(new vec3(0.0f, 0.035f, 0.0f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, teapotM.Values1D);
             GL.UniformMatrix4(DemoShaders.spColored.U("M"), 1, false, teapotM.Values1D);
@@ -182,7 +200,7 @@ namespace PMLabs
 
 
             mat4 bubbleM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
-            bubbleM *= mat4.Translate(new vec3(0.85f, 0.45f*time, 0.0f));
+            bubbleM *= mat4.Translate(new vec3(0.85f, FloatingBubble(time), 0.0f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, bubbleM.Values1D);
 
             bubble.colors = MyTeapot.colors;
@@ -192,6 +210,15 @@ namespace PMLabs
             Glfw.SwapBuffers(window);
         }
 
+        public static float FloatingBubble(float time)
+        {
+            float temp = time % 4;
+
+            if (temp > 1) { return temp * 0.35f; }
+            else /*if (temp == 0) */{ return -100f; }
+
+
+        }
 
 
         //Metoda główna
@@ -199,7 +226,7 @@ namespace PMLabs
         {
             Glfw.Init();//Zainicjuj bibliotekę GLFW
 
-            Window window = Glfw.CreateWindow(500, 500, "OpenGL", GLFW.Monitor.None, Window.None); //Utwórz okno o wymiarach 500x500 i tytule "OpenGL"
+            Window window = Glfw.CreateWindow(1500, 1500, "OpenGL", GLFW.Monitor.None, Window.None); //Utwórz okno o wymiarach 500x500 i tytule "OpenGL"
 
             Glfw.MakeContextCurrent(window); //Ustaw okno jako aktualny kontekst OpenGL - tutaj będą realizowane polecenia OpenGL
             Glfw.SwapInterval(1); //Skopiowanie tylnego bufora na przedni ma się rozpocząć po zakończeniu aktualnego odświerzania ekranu
@@ -210,6 +237,8 @@ namespace PMLabs
 
             float angle_x = 0; //Aktualny kąt obrotu wokół osi X
             float angle_y = 0; //Aktualny kąt obrotu wokół osi Y
+            float loc_y = 0; //Aktualny kąt obrotu wokół osi Y
+            float loc_x = 0; //Aktualny kąt obrotu wokół osi Y
 
             Glfw.Time = 0; //Wyzeruj licznik czasu
 
@@ -217,8 +246,11 @@ namespace PMLabs
             {
                 angle_x += speed_x * 40;// (float)Glfw.Time; //Aktualizuj kat obrotu wokół osi X zgodnie z prędkością obrotu
                 angle_y += speed_y * 40;//(float)Glfw.Time; //Aktualizuj kat obrotu wokół osi Y zgodnie z prędkością obrotu
+                loc_x += move_x;
+                loc_y += move_y;
+
                 //Glfw.Time = 0; //Wyzeruj licznik czasu
-                DrawScene(window,angle_x,angle_y, (float)Glfw.Time); //Wykonaj metodę odświeżającą zawartość okna
+                DrawScene(window,angle_x,angle_y, (float)Glfw.Time,loc_x, loc_y); //Wykonaj metodę odświeżającą zawartość okna
 
                 Glfw.PollEvents(); //Obsłuż zdarzenia użytkownika
             }
