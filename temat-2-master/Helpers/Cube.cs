@@ -24,7 +24,10 @@ namespace Models
 		public static int vertexCount = 36;
 
 		public static float[] vertices ={
-				1.0f,-1.0f,-1.0f,1.0f,
+
+
+
+                1.0f,-1.0f,-1.0f,1.0f,
 				-1.0f, 1.0f,-1.0f,1.0f,
 				-1.0f,-1.0f,-1.0f,1.0f,
 
