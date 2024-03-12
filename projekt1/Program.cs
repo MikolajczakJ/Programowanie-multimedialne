@@ -32,6 +32,7 @@ namespace PMLabs
         static float speed_y; //Prędkość obrotu wokół osi Y [rad/s]
         static float speed_x; //Prędkość obrotu wokół osi X [rad/s]
 
+        static Sphere bubble = new Sphere(0.08f,12,12);
         static KeyCallback kc = KeyProcessor;
 
         //Obsługa klawiatury - zmiana prędkości obrotu wokół poszczególnych osi w zależności od wciśniętych klawiszy
@@ -70,7 +71,7 @@ namespace PMLabs
         }
 
         //Metoda wykonywana najczęściej jak się da. Umieszczamy tutaj kod rysujący
-        public static void DrawScene(Window window,float angle_x,float angle_y)
+        public static void DrawScene(Window window,float angle_x,float angle_y, float time)
         {
             // Wyczyść zawartość okna (buforów kolorów i głębokości)
             GL.Clear(ClearBufferMask.ColorBufferBit| ClearBufferMask.DepthBufferBit);
@@ -180,6 +181,13 @@ namespace PMLabs
 
 
 
+            mat4 bubbleM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
+            bubbleM *= mat4.Translate(new vec3(0.85f, 0.45f*time, 0.0f));
+            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, bubbleM.Values1D);
+
+            bubble.colors = MyTeapot.colors;
+            bubble.drawSolid();
+
             //Skopiuj ukryty bufor do bufora widocznego            
             Glfw.SwapBuffers(window);
         }
@@ -207,10 +215,10 @@ namespace PMLabs
 
             while (!Glfw.WindowShouldClose(window)) //Wykonuj tak długo, dopóki użytkownik nie zamknie okna
             {
-                angle_x += speed_x * (float)Glfw.Time; //Aktualizuj kat obrotu wokół osi X zgodnie z prędkością obrotu
-                angle_y += speed_y * (float)Glfw.Time; //Aktualizuj kat obrotu wokół osi Y zgodnie z prędkością obrotu
-                Glfw.Time = 0; //Wyzeruj licznik czasu
-                DrawScene(window,angle_x,angle_y); //Wykonaj metodę odświeżającą zawartość okna
+                angle_x += speed_x * 40;// (float)Glfw.Time; //Aktualizuj kat obrotu wokół osi X zgodnie z prędkością obrotu
+                angle_y += speed_y * 40;//(float)Glfw.Time; //Aktualizuj kat obrotu wokół osi Y zgodnie z prędkością obrotu
+                //Glfw.Time = 0; //Wyzeruj licznik czasu
+                DrawScene(window,angle_x,angle_y, (float)Glfw.Time); //Wykonaj metodę odświeżającą zawartość okna
 
                 Glfw.PollEvents(); //Obsłuż zdarzenia użytkownika
             }
