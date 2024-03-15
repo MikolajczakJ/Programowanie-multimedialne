@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="bin\Debug\net6.0\jp2.jpeg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Helpers\Helpers.csproj" />
   </ItemGroup>
 

@@ -32,7 +32,7 @@ namespace PMLabs
         static float speed_y; //Prędkość obrotu wokół osi Y [rad/s]
         static float speed_x; //Prędkość obrotu wokół osi X [rad/s]
         static float move_x; 
-        static float move_y; 
+        static float move_z; 
 
         static Sphere bubble = new Sphere(0.08f,12,12);
         static KeyCallback kc = KeyProcessor;
@@ -46,10 +46,10 @@ namespace PMLabs
                 if (key == Keys.Up) speed_x = -3.14f;
                 if (key == Keys.Down) speed_x = 3.14f;
 
-                if (key == Keys.A) move_x = -3.14f;
-                if (key == Keys.D) move_x = 3.14f;
-                if (key == Keys.S) move_y = -3.14f;
-                if (key == Keys.W) move_y = 3.14f;
+                if (key == Keys.A) move_x += -3.14f;
+                if (key == Keys.D) move_x += 3.14f;
+                if (key == Keys.S) move_z += 3.14f;
+                if (key == Keys.W) move_z += -3.14f;
             }
             if (state == InputState.Release)
             {
@@ -58,10 +58,10 @@ namespace PMLabs
                 if (key == Keys.Up) speed_x = 0;
                 if (key == Keys.Down) speed_x = 0;
 
-                if (key == Keys.A) move_x = 0;
-                if (key == Keys.D) move_x = 0;
-                if (key == Keys.S) move_y = 0;
-                if (key == Keys.W) move_y = 0;
+                //if (key == Keys.A) move_x = 0;
+                //if (key == Keys.D) move_x = 0;
+                //if (key == Keys.S) move_y = 0;
+                //if (key == Keys.W) move_y = 0;
             }
         }
 
@@ -98,7 +98,7 @@ namespace PMLabs
 
             // BLAT stołu
             mat4 M = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x,new vec3 (1,0,0));
-            M *=mat4.Translate(move_x, 0, move_y);
+            M *=mat4.Translate(move_x, 0, move_z);
             M *= mat4.Translate(new vec3(0.0f, -0.5f, 0.0f));
             M *= mat4.Scale(new vec3(1.5f, 0.15f, 1.5f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, M.Values1D);
@@ -115,7 +115,7 @@ namespace PMLabs
 
             //Noga 1
             mat4 legM1 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
-            legM1 *= mat4.Translate(move_x, 0, move_y);
+            legM1 *= mat4.Translate(move_x, 0, move_z);
             legM1 *= mat4.Translate(new vec3(1.25f, -1.75f, 1.25f));
             legM1 *= mat4.Scale(new vec3(0.15f, 1.25f, 0.15f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, legM1.Values1D);
@@ -131,7 +131,7 @@ namespace PMLabs
             
             //Noga 2
             mat4 legM2 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
-            legM2 *= mat4.Translate(move_x, 0, move_y);
+            legM2 *= mat4.Translate(move_x, 0, move_z);
             legM2 *= mat4.Translate(new vec3(1.25f, -1.75f, -1.25f));
             legM2 *= mat4.Scale(new vec3(0.15f, 1.25f, 0.15f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, legM2.Values1D);
@@ -149,7 +149,7 @@ namespace PMLabs
             //noga 3
 
             mat4 legM3 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
-            legM3 *= mat4.Translate(move_x, 0, move_y);
+            legM3 *= mat4.Translate(move_x, 0, move_z);
             legM3 *= mat4.Translate(new vec3(-1.25f, -1.75f, -1.25f));
             legM3 *= mat4.Scale(new vec3(0.15f, 1.25f, 0.15f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, legM3.Values1D);
@@ -167,7 +167,7 @@ namespace PMLabs
             //noga 4
 
             mat4 legM4 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
-            legM4 *= mat4.Translate(move_x, 0, move_y);
+            legM4 *= mat4.Translate(move_x, 0, move_z);
             legM4 *= mat4.Translate(new vec3(-1.25f, -1.75f, 1.25f));
             legM4 *= mat4.Scale(new vec3(0.15f, 1.25f, 0.15f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, legM4.Values1D);
@@ -183,7 +183,7 @@ namespace PMLabs
 
             // Czajnik
             mat4 teapotM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
-            teapotM *= mat4.Translate(move_x, 0, move_y);
+            teapotM *= mat4.Translate(move_x, 0, move_z);
             teapotM *= mat4.Translate(new vec3(0.0f, 0.035f, 0.0f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, teapotM.Values1D);
             GL.UniformMatrix4(DemoShaders.spColored.U("M"), 1, false, teapotM.Values1D);
@@ -237,8 +237,6 @@ namespace PMLabs
 
             float angle_x = 0; //Aktualny kąt obrotu wokół osi X
             float angle_y = 0; //Aktualny kąt obrotu wokół osi Y
-            float loc_y = 0; //Aktualny kąt obrotu wokół osi Y
-            float loc_x = 0; //Aktualny kąt obrotu wokół osi Y
 
             Glfw.Time = 0; //Wyzeruj licznik czasu
 
@@ -246,11 +244,9 @@ namespace PMLabs
             {
                 angle_x += speed_x * 40;// (float)Glfw.Time; //Aktualizuj kat obrotu wokół osi X zgodnie z prędkością obrotu
                 angle_y += speed_y * 40;//(float)Glfw.Time; //Aktualizuj kat obrotu wokół osi Y zgodnie z prędkością obrotu
-                loc_x += move_x;
-                loc_y += move_y;
 
                 //Glfw.Time = 0; //Wyzeruj licznik czasu
-                DrawScene(window,angle_x,angle_y, (float)Glfw.Time,loc_x, loc_y); //Wykonaj metodę odświeżającą zawartość okna
+                DrawScene(window,angle_x,angle_y, (float)Glfw.Time,move_x, move_z); //Wykonaj metodę odświeżającą zawartość okna
 
                 Glfw.PollEvents(); //Obsłuż zdarzenia użytkownika
             }
