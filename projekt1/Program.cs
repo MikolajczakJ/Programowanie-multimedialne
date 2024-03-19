@@ -8,14 +8,28 @@ using System.IO;
 
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
-
 using System.Drawing;
 
 using Models;
+using OpenTK.Mathematics;
 
 namespace PMLabs
 {
-
+    /*Do zrobienia:
+     * 5p Przyśpieszenie animacji
+     * 5p NAPRAWIĆ przesuwanie obserwatora
+     * 5p obracanie głowy
+     * 
+     * 
+     * https://multimedialne.placzek.tk/tryb-wyzwania/misja-1
+     * Co już mamy:
+     * W pierwszej kolejności oceniana jest zgodność wizualna z opisem.
+     * 5 p.Stolik posiada blat oraz cztery nogi usytuowane w stosownych miejscach.
+     * 5 p.Czajnik musi być ustawiony na stole, znajduje się bezpośrednio na blacie, nie lewituje nad nim ani nie wtapia się w niego.
+     * Animacja bąbla 
+     * 3p pojawianie się i znikanie 
+     * 2p odstęp czasu 
+     */
 
     //Implementacja interfejsu dostosowującego metodę biblioteki Glfw służącą do pozyskiwania adresów funkcji i procedur OpenGL do współpracy z OpenTK.
     public class BC: IBindingsContext
@@ -28,23 +42,33 @@ namespace PMLabs
 
     class Program
     {
-        
         static float speed_y; //Prędkość obrotu wokół osi Y [rad/s]
         static float speed_x; //Prędkość obrotu wokół osi X [rad/s]
         static float move_x; 
-        static float move_z; 
-
+        static float move_z;
+        static float bubbleSpeed;
         static Sphere bubble = new Sphere(0.08f,12,12);
         static KeyCallback kc = KeyProcessor;
-
         //Obsługa klawiatury - zmiana prędkości obrotu wokół poszczególnych osi w zależności od wciśniętych klawiszy
         public static void KeyProcessor(System.IntPtr window, Keys key, int scanCode, InputState state, ModifierKeys mods) { 
             if (state==InputState.Press)
             {
                 if (key == Keys.Left) speed_y = -3.14f;
-                if (key == Keys.Right) speed_y =  3.14f;
+                if (key == Keys.Right) speed_y = 3.14f;
                 if (key == Keys.Up) speed_x = -3.14f;
                 if (key == Keys.Down) speed_x = 3.14f;
+
+
+                if (key == Keys.Alpha1) bubbleSpeed = 1f;
+                if (key == Keys.Alpha2) bubbleSpeed = 2f;
+                if (key == Keys.Alpha3) bubbleSpeed = 3f;
+                if (key == Keys.Alpha4) bubbleSpeed = 4f;
+                if (key == Keys.Alpha5) bubbleSpeed = 5f;
+                if (key == Keys.Alpha6) bubbleSpeed = 6f;
+                if (key == Keys.Alpha7) bubbleSpeed = 7f;
+                if (key == Keys.Alpha8) bubbleSpeed = 8f;
+                if (key == Keys.Alpha9) bubbleSpeed = 9f;
+
 
                 if (key == Keys.A) move_x += -3.14f;
                 if (key == Keys.D) move_x += 3.14f;
@@ -83,7 +107,7 @@ namespace PMLabs
         }
 
         //Metoda wykonywana najczęściej jak się da. Umieszczamy tutaj kod rysujący
-        public static void DrawScene(Window window,float angle_x,float angle_y, float time, float loc_x, float loc_y)
+        public static void DrawScene(Window window,float angle_x,float angle_y, float time)
         {
             // Wyczyść zawartość okna (buforów kolorów i głębokości)
             GL.Clear(ClearBufferMask.ColorBufferBit| ClearBufferMask.DepthBufferBit);
@@ -97,89 +121,19 @@ namespace PMLabs
 
 
             // BLAT stołu
-            mat4 M = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x,new vec3 (1,0,0));
-            M *=mat4.Translate(move_x, 0, move_z);
-            M *= mat4.Translate(new vec3(0.0f, -0.5f, 0.0f));
-            M *= mat4.Scale(new vec3(1.5f, 0.15f, 1.5f));
-            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, M.Values1D);
-            GL.UniformMatrix4(DemoShaders.spColored.U("M"), 1, false, M.Values1D); //Wyślij do zmiennej jednorodnej M programu cieniującego wartość zmiennej M zadeklarowanej powyżej
-
-            GL.EnableVertexAttribArray(DemoShaders.spColored.A("vertex"));
-            GL.EnableVertexAttribArray(DemoShaders.spColored.A("color"));
-            GL.VertexAttribPointer(DemoShaders.spColored.A("vertex"), 4, VertexAttribPointerType.Float, false, 0, MyCube.vertices);
-            GL.VertexAttribPointer(DemoShaders.spColored.A("color"), 4, VertexAttribPointerType.Float, false, 0, MyCube.colors);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, MyCube.vertexCount);
-            GL.DisableVertexAttribArray(DemoShaders.spColored.A("vertex"));
-            GL.DisableVertexAttribArray(DemoShaders.spColored.A("color"));
-
+            RenderTable(new vec3(0.0f, -0.5f, 0.0f), new vec3(1.5f, 0.15f, 1.5f), angle_y, angle_x);
 
             //Noga 1
-            mat4 legM1 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
-            legM1 *= mat4.Translate(move_x, 0, move_z);
-            legM1 *= mat4.Translate(new vec3(1.25f, -1.75f, 1.25f));
-            legM1 *= mat4.Scale(new vec3(0.15f, 1.25f, 0.15f));
-            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, legM1.Values1D);
-            GL.UniformMatrix4(DemoShaders.spColored.U("M"), 1, false, legM1.Values1D); //Wyślij do zmiennej jednorodnej M programu cieniującego wartość zmiennej M zadeklarowanej powyżej
+            RenderTable(new vec3(1.25f, -1.75f, 1.25f), new vec3(0.15f, 1.25f, 0.15f), angle_y, angle_x);
 
-            GL.EnableVertexAttribArray(DemoShaders.spColored.A("vertex"));
-            GL.EnableVertexAttribArray(DemoShaders.spColored.A("color"));
-            GL.VertexAttribPointer(DemoShaders.spColored.A("vertex"), 4, VertexAttribPointerType.Float, false, 0, MyCube.vertices);
-            GL.VertexAttribPointer(DemoShaders.spColored.A("color"), 4, VertexAttribPointerType.Float, false, 0, MyCube.colors);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, MyCube.vertexCount);
-            GL.DisableVertexAttribArray(DemoShaders.spColored.A("vertex"));
-            GL.DisableVertexAttribArray(DemoShaders.spColored.A("color"));
-            
             //Noga 2
-            mat4 legM2 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
-            legM2 *= mat4.Translate(move_x, 0, move_z);
-            legM2 *= mat4.Translate(new vec3(1.25f, -1.75f, -1.25f));
-            legM2 *= mat4.Scale(new vec3(0.15f, 1.25f, 0.15f));
-            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, legM2.Values1D);
-            GL.UniformMatrix4(DemoShaders.spColored.U("M"), 1, false, legM2.Values1D); //Wyślij do zmiennej jednorodnej M programu cieniującego wartość zmiennej M zadeklarowanej powyżej
-
-            GL.EnableVertexAttribArray(DemoShaders.spColored.A("vertex"));
-            GL.EnableVertexAttribArray(DemoShaders.spColored.A("color"));
-            GL.VertexAttribPointer(DemoShaders.spColored.A("vertex"), 4, VertexAttribPointerType.Float, false, 0, MyCube.vertices);
-            GL.VertexAttribPointer(DemoShaders.spColored.A("color"), 4, VertexAttribPointerType.Float, false, 0, MyCube.colors);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, MyCube.vertexCount);
-            GL.DisableVertexAttribArray(DemoShaders.spColored.A("vertex"));
-            GL.DisableVertexAttribArray(DemoShaders.spColored.A("color"));
-
+            RenderTable(new vec3(1.25f, -1.75f, -1.25f), new vec3(0.15f, 1.25f, 0.15f), angle_y, angle_x);
 
             //noga 3
-
-            mat4 legM3 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
-            legM3 *= mat4.Translate(move_x, 0, move_z);
-            legM3 *= mat4.Translate(new vec3(-1.25f, -1.75f, -1.25f));
-            legM3 *= mat4.Scale(new vec3(0.15f, 1.25f, 0.15f));
-            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, legM3.Values1D);
-            GL.UniformMatrix4(DemoShaders.spColored.U("M"), 1, false, legM3.Values1D); //Wyślij do zmiennej jednorodnej M programu cieniującego wartość zmiennej M zadeklarowanej powyżej
-
-            GL.EnableVertexAttribArray(DemoShaders.spColored.A("vertex"));
-            GL.EnableVertexAttribArray(DemoShaders.spColored.A("color"));
-            GL.VertexAttribPointer(DemoShaders.spColored.A("vertex"), 4, VertexAttribPointerType.Float, false, 0, MyCube.vertices);
-            GL.VertexAttribPointer(DemoShaders.spColored.A("color"), 4, VertexAttribPointerType.Float, false, 0, MyCube.colors);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, MyCube.vertexCount);
-            GL.DisableVertexAttribArray(DemoShaders.spColored.A("vertex"));
-            GL.DisableVertexAttribArray(DemoShaders.spColored.A("color"));
-
+            RenderTable(new vec3(-1.25f, -1.75f, -1.25f), new vec3(0.15f, 1.25f, 0.15f), angle_y, angle_x);
 
             //noga 4
-
-            mat4 legM4 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
-            legM4 *= mat4.Translate(move_x, 0, move_z);
-            legM4 *= mat4.Translate(new vec3(-1.25f, -1.75f, 1.25f));
-            legM4 *= mat4.Scale(new vec3(0.15f, 1.25f, 0.15f));
-            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, legM4.Values1D);
-            GL.UniformMatrix4(DemoShaders.spColored.U("M"), 1, false, legM4.Values1D); //Wyślij do zmiennej jednorodnej M programu cieniującego wartość zmiennej M zadeklarowanej powyżej
-
-            GL.EnableVertexAttribArray(DemoShaders.spColored.A("vertex"));
-            GL.EnableVertexAttribArray(DemoShaders.spColored.A("color"));
-            GL.VertexAttribPointer(DemoShaders.spColored.A("vertex"), 4, VertexAttribPointerType.Float, false, 0, MyCube.vertices);
-            GL.VertexAttribPointer(DemoShaders.spColored.A("color"), 4, VertexAttribPointerType.Float, false, 0, MyCube.colors);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, MyCube.vertexCount);
-            GL.DisableVertexAttribArray(DemoShaders.spColored.A("vertex"));
-            GL.DisableVertexAttribArray(DemoShaders.spColored.A("color"));
+            RenderTable(new vec3(-1.25f, -1.75f, 1.25f), new vec3(0.15f, 1.25f, 0.15f), angle_y, angle_x);
 
             // Czajnik
             mat4 teapotM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
@@ -201,13 +155,37 @@ namespace PMLabs
 
             mat4 bubbleM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
             bubbleM *= mat4.Translate(new vec3(0.85f, FloatingBubble(time), 0.0f));
+            bubbleM *= mat4.Translate(move_x, 0, move_z);
+            bubbleM *= mat4.Translate(new vec3(0.0f, 0.035f, 0.0f));
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, bubbleM.Values1D);
 
             bubble.colors = MyTeapot.colors;
             bubble.drawSolid();
+            P = mat4.Perspective(glm.Radians(50.0f), 1, 1, 50);
+
+
+
 
             //Skopiuj ukryty bufor do bufora widocznego            
             Glfw.SwapBuffers(window);
+        }
+        private static void RenderTable(vec3 translateVec,vec3 scaleVec, float angle_y, float angle_x)
+        {
+            mat4 legM3 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
+            legM3 *= mat4.Translate(move_x, 0, move_z);
+            legM3 *= mat4.Translate(translateVec);
+            legM3 *= mat4.Scale(scaleVec);
+            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, legM3.Values1D);
+            GL.UniformMatrix4(DemoShaders.spColored.U("M"), 1, false, legM3.Values1D); //Wyślij do zmiennej jednorodnej M programu cieniującego wartość zmiennej M zadeklarowanej powyżej
+
+            GL.EnableVertexAttribArray(DemoShaders.spColored.A("vertex"));
+            GL.EnableVertexAttribArray(DemoShaders.spColored.A("color"));
+            GL.VertexAttribPointer(DemoShaders.spColored.A("vertex"), 4, VertexAttribPointerType.Float, false, 0, MyCube.vertices);
+            GL.VertexAttribPointer(DemoShaders.spColored.A("color"), 4, VertexAttribPointerType.Float, false, 0, MyCube.colors);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, MyCube.vertexCount);
+            GL.DisableVertexAttribArray(DemoShaders.spColored.A("vertex"));
+            GL.DisableVertexAttribArray(DemoShaders.spColored.A("color"));
+            //return legM3;
         }
 
         public static float FloatingBubble(float time)
@@ -246,7 +224,7 @@ namespace PMLabs
                 angle_y += speed_y * 40;//(float)Glfw.Time; //Aktualizuj kat obrotu wokół osi Y zgodnie z prędkością obrotu
 
                 //Glfw.Time = 0; //Wyzeruj licznik czasu
-                DrawScene(window,angle_x,angle_y, (float)Glfw.Time,move_x, move_z); //Wykonaj metodę odświeżającą zawartość okna
+                DrawScene(window,angle_x,angle_y, (float)Glfw.Time); //Wykonaj metodę odświeżającą zawartość okna
 
                 Glfw.PollEvents(); //Obsłuż zdarzenia użytkownika
             }
@@ -259,4 +237,8 @@ namespace PMLabs
                     
 
     }
+
+
+
+
 }
