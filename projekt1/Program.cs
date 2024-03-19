@@ -29,6 +29,7 @@ namespace PMLabs
      * Animacja bąbla 
      * 3p pojawianie się i znikanie 
      * 2p odstęp czasu 
+     * 5p bąbel rośnie
      */
 
     //Implementacja interfejsu dostosowującego metodę biblioteki Glfw służącą do pozyskiwania adresów funkcji i procedur OpenGL do współpracy z OpenTK.
@@ -46,6 +47,7 @@ namespace PMLabs
         static float speed_x; //Prędkość obrotu wokół osi X [rad/s]
         static float move_x; 
         static float move_z;
+        static vec3 legScaleVec = new vec3(0.15f, 1.25f, 0.15f);
         static float bubbleSpeed;
         static Sphere bubble = new Sphere(0.08f,12,12);
         static KeyCallback kc = KeyProcessor;
@@ -103,7 +105,6 @@ namespace PMLabs
         //Tutaj zwalniamy wszystkie zasoby zaalokowane na począdku programu
         public static void FreeOpenGLProgram(Window window)
         {
-            
         }
 
         //Metoda wykonywana najczęściej jak się da. Umieszczamy tutaj kod rysujący
@@ -122,25 +123,42 @@ namespace PMLabs
 
             // BLAT stołu
             RenderTable(new vec3(0.0f, -0.5f, 0.0f), new vec3(1.5f, 0.15f, 1.5f), angle_y, angle_x);
-
-            //Noga 1
-            RenderTable(new vec3(1.25f, -1.75f, 1.25f), new vec3(0.15f, 1.25f, 0.15f), angle_y, angle_x);
-
-            //Noga 2
-            RenderTable(new vec3(1.25f, -1.75f, -1.25f), new vec3(0.15f, 1.25f, 0.15f), angle_y, angle_x);
-
-            //noga 3
-            RenderTable(new vec3(-1.25f, -1.75f, -1.25f), new vec3(0.15f, 1.25f, 0.15f), angle_y, angle_x);
-
-            //noga 4
-            RenderTable(new vec3(-1.25f, -1.75f, 1.25f), new vec3(0.15f, 1.25f, 0.15f), angle_y, angle_x);
-
+            //Nogi
+            RenderTable(new vec3(1.25f, -1.75f, 1.25f), legScaleVec, angle_y, angle_x);
+            RenderTable(new vec3(1.25f, -1.75f, -1.25f), legScaleVec, angle_y, angle_x);
+            RenderTable(new vec3(-1.25f, -1.75f, -1.25f), legScaleVec, angle_y, angle_x);
+            RenderTable(new vec3(-1.25f, -1.75f, 1.25f), legScaleVec, angle_y, angle_x);
             // Czajnik
+            RenderTeapot(angle_y, angle_x);
+            //Bańka
+            RenderBubble(angle_y, angle_x, time);
+
+
+            //Skopiuj ukryty bufor do bufora widocznego            
+            Glfw.SwapBuffers(window);
+        }
+        private static void RenderBubble(float angle_y, float angle_x, float time)
+        {
+            float size, speed;
+            (size, speed) = FloatingBubble(time);
+            mat4 bubbleM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
+            bubbleM *= mat4.Translate(new vec3(0.85f, speed, 0.0f));
+            bubbleM *= mat4.Translate(move_x, 0, move_z);
+            bubbleM *= mat4.Translate(new vec3(0.0f, 0.035f, 0.0f));
+            bubbleM *= mat4.Scale(size);
+            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, bubbleM.Values1D);
+            bubble.colors = MyTeapot.colors;
+            bubble.drawSolid();
+        }
+        private static void RenderTeapot(float angle_y, float angle_x)
+        {
+
             mat4 teapotM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
             teapotM *= mat4.Translate(move_x, 0, move_z);
             teapotM *= mat4.Translate(new vec3(0.0f, 0.035f, 0.0f));
-            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, teapotM.Values1D);
             GL.UniformMatrix4(DemoShaders.spColored.U("M"), 1, false, teapotM.Values1D);
+            GL.UniformMatrix4(DemoShaders.spColored.U("M"), 1, false, teapotM.Values1D);
+
 
             GL.EnableVertexAttribArray(DemoShaders.spColored.A("vertex"));
             GL.EnableVertexAttribArray(DemoShaders.spColored.A("color"));
@@ -149,25 +167,6 @@ namespace PMLabs
             GL.DrawArrays(PrimitiveType.Triangles, 0, MyTeapot.vertexCount);
             GL.DisableVertexAttribArray(DemoShaders.spColored.A("vertex"));
             GL.DisableVertexAttribArray(DemoShaders.spColored.A("color"));
-
-
-
-
-            mat4 bubbleM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
-            bubbleM *= mat4.Translate(new vec3(0.85f, FloatingBubble(time), 0.0f));
-            bubbleM *= mat4.Translate(move_x, 0, move_z);
-            bubbleM *= mat4.Translate(new vec3(0.0f, 0.035f, 0.0f));
-            GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, bubbleM.Values1D);
-
-            bubble.colors = MyTeapot.colors;
-            bubble.drawSolid();
-            P = mat4.Perspective(glm.Radians(50.0f), 1, 1, 50);
-
-
-
-
-            //Skopiuj ukryty bufor do bufora widocznego            
-            Glfw.SwapBuffers(window);
         }
         private static void RenderTable(vec3 translateVec,vec3 scaleVec, float angle_y, float angle_x)
         {
@@ -188,17 +187,29 @@ namespace PMLabs
             //return legM3;
         }
 
-        public static float FloatingBubble(float time)
+        public static (float,float) FloatingBubble(float time)
         {
-            float temp = time % 4;
+            float temp = time % 10;
+            if (temp < 2)
+            {
+                return (1.0f, -100f);
+            }
+            else if (temp >= 2 && temp < 5) 
+            {
+                return (1 + ((temp%5)*0.1f),0.38f);
+            }
+            else
+            {
+                return (1.6f, (temp % 5 * 0.35f)+0.38f);
+            }
 
-            if (temp > 1) { return temp * 0.35f; }
-            else /*if (temp == 0) */{ return -100f; }
+            //float temp = time % 35;
+
+            //if (temp > 1) { return temp * 0.35f; }
+            //else /*if (temp == 0) */{ return -100f; }
 
 
         }
-
-
         //Metoda główna
         static void Main(string[] args)
         {
