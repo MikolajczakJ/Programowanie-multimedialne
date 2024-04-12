@@ -12,17 +12,21 @@ in vec4 color; //kolor skojarzony z wierzcho³kiem
 in vec2 texCoord; //wspó³rzêdna teksturowana
 
 out vec4 i_c;
-
+out vec4 i_v;
+out vec4 i_n;
 void main(void) {
     i_c=color;
-
+    i_v = vertex;
+    i_n = normal;
     vec4 polZroSwi=vec4(0,0,-6,1);
     vec4 l = normalize(V*polZroSwi-V*M*vertex);
     vec4 n = normalize(V*M*normal);
     vec4 r=reflect(-l,n);
     vec4 v=normalize(vec4(0,0,0,1)-V*M*vertex);
     float rv=clamp(dot(r,v),0,1);
-    rv=pow(rv,25);
-    i_c = color*vec4(0,0,0,1) + color*vec4(1,1,1,1) *dot(n,l)+color*color*rv;
+    
+    rv=pow(rv,1);
     gl_Position=P*V*M*vertex;
+ 
+ i_c = color*vec4(0,0,0,1) + color*vec4(1,1,1,1) *dot(n,l)+color*color*rv;
 }

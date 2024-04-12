@@ -12,8 +12,15 @@ in vec4 color; //kolor skojarzony z wierzcho³kiem
 in vec2 texCoord; //wspó³rzêdna teksturowana
 
 out vec4 i_c;
+out vec4 i_v;
+out vec4 i_n;
+out vec2 i_tc;
 
 void main(void) {
     i_c=color;
+    i_v = vertex;
+    i_n = normal;
+    i_tc = texCoord;
     gl_Position=P*V*M*vertex;
+
 }
