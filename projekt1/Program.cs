@@ -18,7 +18,6 @@ namespace PMLabs
     /*Do zrobienia:
      * 5p Przyśpieszenie animacji
      * 5p NAPRAWIĆ przesuwanie obserwatora
-     * 5p obracanie głowy
      * 
      * 
      * https://multimedialne.placzek.tk/tryb-wyzwania/misja-1
@@ -30,6 +29,7 @@ namespace PMLabs
      * 3p pojawianie się i znikanie 
      * 2p odstęp czasu 
      * 5p bąbel rośnie
+     * 5p obracanie głowy
      */
 
     //Implementacja interfejsu dostosowującego metodę biblioteki Glfw służącą do pozyskiwania adresów funkcji i procedur OpenGL do współpracy z OpenTK.
@@ -55,10 +55,10 @@ namespace PMLabs
         public static void KeyProcessor(System.IntPtr window, Keys key, int scanCode, InputState state, ModifierKeys mods) { 
             if (state==InputState.Press)
             {
-                if (key == Keys.Left) speed_y = -3.14f;
-                if (key == Keys.Right) speed_y = 3.14f;
-                if (key == Keys.Up) speed_x = -3.14f;
-                if (key == Keys.Down) speed_x = 3.14f;
+                if (key == Keys.Left) speed_y = 3.14f;
+                if (key == Keys.Right) speed_y = -3.14f;
+                if (key == Keys.Up) speed_x = 3.14f;
+                if (key == Keys.Down) speed_x = -3.14f;
 
 
                 if (key == Keys.Alpha1) bubbleSpeed = 1f;
@@ -91,8 +91,6 @@ namespace PMLabs
             }
         }
 
-        //Metoda wykonywana po zainicjowaniu bibliotek, przed rozpoczęciem pętli głównej
-        //Tutaj umieszczamy nasz kod inicjujący
         public static void InitOpenGLProgram(Window window)
         {
             GL.ClearColor(0, 0, 0, 1); //Wyczyść zawartość okna na czarno (r=0,g=0,b=0,a=1)
@@ -116,6 +114,7 @@ namespace PMLabs
             mat4 P = mat4.Perspective(glm.Radians(50.0f), 1, 1, 50); //Wylicz macierz rzutowania
             mat4 V = mat4.LookAt(new vec3(0, 0, -5), new vec3(0, 0, 0), new vec3(0, 1, 0)); //Wylicz macierz widoku
             DemoShaders.spColored.Use();
+            P *= mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
 
             GL.UniformMatrix4(DemoShaders.spColored.U("P"), 1, false, P.Values1D); //Wyślij do zmiennej jednorodnej P programu cieniującego wartość zmiennej P zadeklarowanej powyżej
             GL.UniformMatrix4(DemoShaders.spColored.U("V"), 1, false, V.Values1D); //Wyślij do zmiennej jednorodnej V programu cieniującego wartość zmiennej V zadeklarowanej powyżej
@@ -128,6 +127,7 @@ namespace PMLabs
             RenderTable(new vec3(1.25f, -1.75f, -1.25f), legScaleVec, angle_y, angle_x);
             RenderTable(new vec3(-1.25f, -1.75f, -1.25f), legScaleVec, angle_y, angle_x);
             RenderTable(new vec3(-1.25f, -1.75f, 1.25f), legScaleVec, angle_y, angle_x);
+
             // Czajnik
             RenderTeapot(angle_y, angle_x);
             //Bańka
@@ -141,7 +141,8 @@ namespace PMLabs
         {
             float size, speed;
             (size, speed) = FloatingBubble(time);
-            mat4 bubbleM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
+            mat4 bubbleM = mat4.Rotate(0, new vec3(0, 1, 0)) * mat4.Rotate(0, new vec3(1, 0, 0));
+            //mat4 bubbleM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
             bubbleM *= mat4.Translate(new vec3(0.85f, speed, 0.0f));
             bubbleM *= mat4.Translate(move_x, 0, move_z);
             bubbleM *= mat4.Translate(new vec3(0.0f, 0.035f, 0.0f));
@@ -153,7 +154,8 @@ namespace PMLabs
         private static void RenderTeapot(float angle_y, float angle_x)
         {
 
-            mat4 teapotM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
+            //mat4 teapotM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
+            mat4 teapotM = mat4.Rotate(0, new vec3(0, 1, 0)) * mat4.Rotate(0, new vec3(1, 0, 0));
             teapotM *= mat4.Translate(move_x, 0, move_z);
             teapotM *= mat4.Translate(new vec3(0.0f, 0.035f, 0.0f));
             GL.UniformMatrix4(DemoShaders.spColored.U("M"), 1, false, teapotM.Values1D);
@@ -170,7 +172,8 @@ namespace PMLabs
         }
         private static void RenderTable(vec3 translateVec,vec3 scaleVec, float angle_y, float angle_x)
         {
-            mat4 legM3 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
+            mat4 legM3 = mat4.Rotate(0, new vec3(0, 1, 0)) * mat4.Rotate(0, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
+            //mat4 legM3 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
             legM3 *= mat4.Translate(move_x, 0, move_z);
             legM3 *= mat4.Translate(translateVec);
             legM3 *= mat4.Scale(scaleVec);
@@ -184,7 +187,6 @@ namespace PMLabs
             GL.DrawArrays(PrimitiveType.Triangles, 0, MyCube.vertexCount);
             GL.DisableVertexAttribArray(DemoShaders.spColored.A("vertex"));
             GL.DisableVertexAttribArray(DemoShaders.spColored.A("color"));
-            //return legM3;
         }
 
         public static (float,float) FloatingBubble(float time)
@@ -213,16 +215,16 @@ namespace PMLabs
         //Metoda główna
         static void Main(string[] args)
         {
-            Glfw.Init();//Zainicjuj bibliotekę GLFW
+            Glfw.Init();
 
-            Window window = Glfw.CreateWindow(500, 500, "OpenGL", GLFW.Monitor.None, Window.None); //Utwórz okno o wymiarach 500x500 i tytule "OpenGL"
+            Window window = Glfw.CreateWindow(500, 500, "Projekt czajnik", GLFW.Monitor.None, Window.None);
 
-            Glfw.MakeContextCurrent(window); //Ustaw okno jako aktualny kontekst OpenGL - tutaj będą realizowane polecenia OpenGL
-            Glfw.SwapInterval(1); //Skopiowanie tylnego bufora na przedni ma się rozpocząć po zakończeniu aktualnego odświerzania ekranu
+            Glfw.MakeContextCurrent(window);
+            Glfw.SwapInterval(1); 
 
-            GL.LoadBindings(new BC()); //Pozyskaj adresy implementacji poszczególnych procedur OpenGL
+            GL.LoadBindings(new BC());
 
-            InitOpenGLProgram(window); //Wykonaj metodę inicjującą Twoje zasoby 
+            InitOpenGLProgram(window);
 
             float angle_x = 0; //Aktualny kąt obrotu wokół osi X
             float angle_y = 0; //Aktualny kąt obrotu wokół osi Y
@@ -231,19 +233,15 @@ namespace PMLabs
 
             while (!Glfw.WindowShouldClose(window)) //Wykonuj tak długo, dopóki użytkownik nie zamknie okna
             {
-                angle_x += speed_x * 40;// (float)Glfw.Time; //Aktualizuj kat obrotu wokół osi X zgodnie z prędkością obrotu
-                angle_y += speed_y * 40;//(float)Glfw.Time; //Aktualizuj kat obrotu wokół osi Y zgodnie z prędkością obrotu
+                angle_x += speed_x * 40;//Aktualizuj kat obrotu wokół osi X zgodnie z prędkością obrotu
+                angle_y += speed_y * 40;//Aktualizuj kat obrotu wokół osi Y zgodnie z prędkością obrotu
 
                 //Glfw.Time = 0; //Wyzeruj licznik czasu
-                DrawScene(window,angle_x,angle_y, (float)Glfw.Time); //Wykonaj metodę odświeżającą zawartość okna
-
-                Glfw.PollEvents(); //Obsłuż zdarzenia użytkownika
+                DrawScene(window,angle_x,angle_y, (float)Glfw.Time);
+                Glfw.PollEvents();
             }
-
-
-            FreeOpenGLProgram(window);//Zwolnij zaalokowane przez siebie zasoby
-
-            Glfw.Terminate(); //Zwolnij zasoby biblioteki GLFW
+            FreeOpenGLProgram(window);
+            Glfw.Terminate();
         }
                     
 
