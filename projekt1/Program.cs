@@ -72,10 +72,10 @@ namespace PMLabs
                 if (key == Keys.Alpha9) bubbleSpeed = 9f;
 
 
-                if (key == Keys.A) move_x += -3.14f;
-                if (key == Keys.D) move_x += 3.14f;
-                if (key == Keys.S) move_z += 3.14f;
-                if (key == Keys.W) move_z += -3.14f;
+                if (key == Keys.A) move_x += 3.14f;
+                if (key == Keys.D) move_x += -3.14f;
+                if (key == Keys.S) move_z += -3.14f;
+                if (key == Keys.W) move_z += 3.14f;
             }
             if (state == InputState.Release)
             {
@@ -115,7 +115,7 @@ namespace PMLabs
             mat4 V = mat4.LookAt(new vec3(0, 0, -5), new vec3(0, 0, 0), new vec3(0, 1, 0)); //Wylicz macierz widoku
             DemoShaders.spColored.Use();
             P *= mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
-
+            P *= mat4.Translate(move_x, 0, move_z);
             GL.UniformMatrix4(DemoShaders.spColored.U("P"), 1, false, P.Values1D); //Wyślij do zmiennej jednorodnej P programu cieniującego wartość zmiennej P zadeklarowanej powyżej
             GL.UniformMatrix4(DemoShaders.spColored.U("V"), 1, false, V.Values1D); //Wyślij do zmiennej jednorodnej V programu cieniującego wartość zmiennej V zadeklarowanej powyżej
 
@@ -129,34 +129,32 @@ namespace PMLabs
             RenderTable(new vec3(-1.25f, -1.75f, 1.25f), legScaleVec, angle_y, angle_x);
 
             // Czajnik
-            RenderTeapot(angle_y, angle_x);
+            RenderTeapot();
             //Bańka
-            RenderBubble(angle_y, angle_x, time);
+            RenderBubble(time);
 
 
             //Skopiuj ukryty bufor do bufora widocznego            
             Glfw.SwapBuffers(window);
         }
-        private static void RenderBubble(float angle_y, float angle_x, float time)
+        private static void RenderBubble(float time)
         {
             float size, speed;
             (size, speed) = FloatingBubble(time);
             mat4 bubbleM = mat4.Rotate(0, new vec3(0, 1, 0)) * mat4.Rotate(0, new vec3(1, 0, 0));
             //mat4 bubbleM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
             bubbleM *= mat4.Translate(new vec3(0.85f, speed, 0.0f));
-            bubbleM *= mat4.Translate(move_x, 0, move_z);
+            //bubbleM *= mat4.Translate(move_x, 0, move_z);
             bubbleM *= mat4.Translate(new vec3(0.0f, 0.035f, 0.0f));
             bubbleM *= mat4.Scale(size);
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, bubbleM.Values1D);
             bubble.colors = MyTeapot.colors;
             bubble.drawSolid();
         }
-        private static void RenderTeapot(float angle_y, float angle_x)
+        private static void RenderTeapot()
         {
-
-            //mat4 teapotM = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0));
             mat4 teapotM = mat4.Rotate(0, new vec3(0, 1, 0)) * mat4.Rotate(0, new vec3(1, 0, 0));
-            teapotM *= mat4.Translate(move_x, 0, move_z);
+            //teapotM *= mat4.Translate(move_x, 0, move_z);
             teapotM *= mat4.Translate(new vec3(0.0f, 0.035f, 0.0f));
             GL.UniformMatrix4(DemoShaders.spColored.U("M"), 1, false, teapotM.Values1D);
             GL.UniformMatrix4(DemoShaders.spColored.U("M"), 1, false, teapotM.Values1D);
@@ -174,7 +172,7 @@ namespace PMLabs
         {
             mat4 legM3 = mat4.Rotate(0, new vec3(0, 1, 0)) * mat4.Rotate(0, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
             //mat4 legM3 = mat4.Rotate(angle_y, new vec3(0, 1, 0)) * mat4.Rotate(angle_x, new vec3(1, 0, 0)); //Macierz modelu to iloczyun macierzy obrotu wokół osi Y i X.
-            legM3 *= mat4.Translate(move_x, 0, move_z);
+            //legM3 *= mat4.Translate(move_x, 0, move_z);
             legM3 *= mat4.Translate(translateVec);
             legM3 *= mat4.Scale(scaleVec);
             GL.UniformMatrix4(DemoShaders.spConstant.U("M"), 1, false, legM3.Values1D);
