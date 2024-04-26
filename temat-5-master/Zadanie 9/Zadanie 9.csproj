@@ -9,11 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="bin\Debug\net6.0\f7.jpg" />
-    <Content Include="bin\Debug\net6.0\f7_spec.jpg" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Helpers\Helpers.csproj" />
   </ItemGroup>
 
@@ -22,18 +17,6 @@
 	<PackageReference Include="GlmSharp" Version="0.9.8" />
 	<PackageReference Include="OpenTK" Version="4.7.7" />
 	<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="bricks.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="f_shader.glsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="v_shader.glsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

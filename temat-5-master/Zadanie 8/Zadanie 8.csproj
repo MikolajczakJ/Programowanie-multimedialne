@@ -9,11 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="bin\Debug\net6.0\f7.jpg" />
-    <Content Include="bin\Debug\net6.0\f7_spec.jpg" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Helpers\Helpers.csproj" />
   </ItemGroup>
 
@@ -26,12 +21,6 @@
 
   <ItemGroup>
     <None Update="bricks.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="f_shader.glsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="v_shader.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
